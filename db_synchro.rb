@@ -1,11 +1,12 @@
 #!/usr/bin/ruby
-
+# encoding: utf-8
 # = db_synchro.rb
 #
 # Author:: ajramos
 #
 # == Description
-# * Download a mysql db bulk file from a bucket in AWS S3 and fetched into the target database
+# * Download a mysql db bulk file from a bucket in AWS S3
+#   and fetched into the target database
 #
 # === Usage:
 #
@@ -22,19 +23,18 @@ require 'rubygems'
 require 'aws-sdk'
 
 s3 = AWS::S3.new(
-    :c => 'S3_ACCESS_KEY_ID',
-    :secret_access_key => 'S3_SECRET_ACCESS_KEY')
+    c: 'S3_ACCESS_KEY_ID',
+    secret_access_key: 'S3_SECRET_ACCESS_KEY')
 
 hostname = 'localhost'
 db = 'database_name'
 user = 'database_user'
 passwd = 'database_password'
 bucket_name = 'bucket_name'
-bkp_path= '/tmp'
-s3_bkp_path='bkp/db'
+bkp_path = '/tmp'
+s3_bkp_path = 'bkp/db'
 today = Time.new.strftime('%Y%m%d')
 filename = "database_pro_db.#{today}.sql"
-
 
 bkp_path += "/#{filename}"
 mysql_cmd = "mysql -h #{hostname} -u #{user} -p#{passwd} #{db} < #{bkp_path}"
@@ -45,16 +45,17 @@ bucket = s3.buckets[bucket_name] # no request made
 
 db_bkp_obj = bucket.objects["#{s3_bkp_path}/#{filename}"]
 
-if (db_bkp_obj.exists?)
+if db_bkp_obj.exists?
   puts "BackUp found: #{db_bkp_obj.key}"
-  unless (File.exists?("#{bkp_path}"))
+  if File.exists?("#{bkp_path}")
+    puts 'File already downloaded, if you would like to download again,'
+    puts 'remove the file and run this script over again'
+  else
     puts 'Download...'
     open("#{bkp_path}", 'w') do |file|
       file.write db_bkp_obj.read
     end
     puts 'Download Finished'
-  else
-    puts 'File already downloaded, if you would like to download again, remove the file and run this script over again'
   end
 end
 

@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-
+# encoding: utf-8
 # Author:: ajramos
 #
 # == Description
@@ -16,23 +16,22 @@
 # - bkp_path: directory where the backup is going to be download
 # - filename: name of the backup file to be downloaded
 
-
 require 'rubygems'
 require 'aws'
 
 s3 = AWS::S3.new(
-  :access_key_id => 'S3_ACCESS_KEY_ID',
-  :secret_access_key => 'S3_SECRET_ACCESS_KEY')
-bucket_name= 'evomote'
+  access_key_id: 'S3_ACCESS_KEY_ID',
+  secret_access_key: 'S3_SECRET_ACCESS_KEY')
+bucket_name = 'evomote'
 hostname = 'localhost'
 db = 'database'
 user = 'user'
 passwd = 'password'
-bkp_path= "/tmp"
-s3_bkp_path="bkp/db"
+bkp_path = '/tmp'
+s3_bkp_path = 'bkp/db'
 command = "mysqldump -h #{hostname} -u #{user} -p#{passwd} #{db}"
-today = Time.new.strftime("%Y%m%d")
-filename = "database_pro_db."+today+".sql"
+today = Time.new.strftime('%Y%m%d')
+filename = "database_pro_db.#{today}.sql"
 
 bkp_path += "/#{filename}"
 command += " > #{bkp_path}"
@@ -43,7 +42,7 @@ bucket = s3.buckets[bucket_name] # no request made
 
 db_bkp_obj = bucket.objects["#{s3_bkp_path}/#{filename}"]
 
-db_bk_pro_upload = db_bkp_obj.write(Pathname.new(bkp_path))
+db_bkp_obj.write(Pathname.new(bkp_path))
 
 del_command = "rm #{bkp_path}"
 system(del_command)
